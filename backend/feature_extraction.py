@@ -15,8 +15,20 @@ def preprocess_datas(src_dir, dest_dir):
     newfiles = []
     dest_fields = dest_dir.split("/")
 
+    directories = glob.glob(src_dir+"*/")
+    print(directories)
+    for i in directories:
+        if '.' in i.split()[-1]:
+            shutil.rmtree(i, ignore_errors=False, onerror=None)
+            #os.rmdir(i)
+
     for filename in glob.iglob(src_dir + "**/*.*", recursive=True):
         fields = filename.split("/")
+
+        if '/Debug' in filename:
+            continue
+
+
 
         my_dir = ""
         for i in range(len(fields)):
