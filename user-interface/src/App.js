@@ -17,7 +17,8 @@ class App extends React.Component{
         current_step: 1,
         selected_filename: "Archive",
         predicted_grade: "NaN",
-        adjusted_grade: ""
+        adjusted_grade: "",
+        modelChoose:''
     }
 
     constructor(props){
@@ -33,15 +34,16 @@ class App extends React.Component{
         this.sendChangeRequest = this.sendChangeRequest.bind(this)
         this.retrainModel = this.retrainModel.bind(this)
         this.restartGradingProcess = this.restartGradingProcess.bind(this)
+        
 
     }
 
     selectArchive(event){
-
+        console.log(this.state.modelChoose)
         var form_data = new FormData();
 
         form_data.append("file", event.target.files[0])
-
+        form_data.append("model", this.state.modelChoose)
         axios.post(API_BASE_ADDRESS + "/predict", form_data, {
             headers: {
                 "Access-Control-Allow-Origin": "*",
@@ -117,13 +119,24 @@ class App extends React.Component{
                     {/* Field for uploading a file */}
                     <Jumbotron className={first_step_classes}>
                         <h3>First Step</h3>
-                        <p>Select the <code>.zip</code> archive containing the source code of the student you want to grade.</p>
+                        <p>Select the <code>.zip</code> archive containing the source code of the student you want to grade and the model.</p>
+                        <p style={{color:'red'}}>Please select model first</p>
                         <Form>
+                        {['RandomForestRegressor'].map((type) => (
+                                <div key={`default-${type}`} className="mb-3">
+                                <Form.Check 
+                                    type={'checkbox'}
+                                    id={`default-${type}`}
+                                    label={`${type}`}
+                                    onChange={(e)=>{this.setState({modelChoose:type})}}
+                                />
+                                </div>))}
                             <Form.File
                                 label={this.state.selected_filename}
                                 custom
                                 onChange={this.selectArchive}
                             />
+                            
                         </Form>
                     </Jumbotron>
 
@@ -173,7 +186,6 @@ class App extends React.Component{
                         </Button>
 
                     </Jumbotron>
-
                 </Container>
 
             </div>

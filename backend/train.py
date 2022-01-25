@@ -157,11 +157,12 @@ class Predictor:
         self.model = joblib.load(model_name)
 
     # returns <class 'numpy.ndarray'>
-    def predict(self, features):
+    def predict(self, features,modelChoose):
+        listModels=[["RandomForestRegressor",self.model]]
+        for i in listModels:
+            if i[0]==modelChoose:
+                return i[1].predict(features)
 
-        prediction = self.model.predict(features)
-
-        return prediction
 
 
 #How to run

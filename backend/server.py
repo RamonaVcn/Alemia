@@ -42,6 +42,7 @@ def predict_route():
 
     # Get arguments
     uploaded_file = request.files["file"]
+    modelChoose=request.form["model"]
 
     # Generate a filename and save the file locally
     unique_filename = uploaded_file.filename + str(time.time())
@@ -61,7 +62,7 @@ def predict_route():
     features = preprocessor.transform_entry(features)
 
     # Predict the grade
-    grade = predictor.predict([features])[0]
+    grade = predictor.predict([features],modelChoose)[0]
     grade = round(grade, 2)
 
     # Dump the grade into the specific CSV file
@@ -94,6 +95,7 @@ def grade_adjustment_route():
     # Return a result
     result = {"status": "ok"}
     return jsonify(result)
+
 
 
 # Model retraining route
