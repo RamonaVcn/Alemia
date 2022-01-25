@@ -17,7 +17,8 @@ class App extends React.Component{
         current_step: 1,
         selected_filename: "Archive",
         predicted_grade: "NaN",
-        adjusted_grade: ""
+        adjusted_grade: "",
+        data:[]
     }
 
     constructor(props){
@@ -33,6 +34,7 @@ class App extends React.Component{
         this.sendChangeRequest = this.sendChangeRequest.bind(this)
         this.retrainModel = this.retrainModel.bind(this)
         this.restartGradingProcess = this.restartGradingProcess.bind(this)
+        
 
     }
 
@@ -53,6 +55,13 @@ class App extends React.Component{
                 selected_filename: event.target.files[0].name,
                 predicted_grade: response.data.predicted_grade
             })
+            axios.get(API_BASE_ADDRESS+"/getFeatueresLastStudent").then((response)=>{
+                console.log(response.data)
+                this.setState({
+                    data:response.data.features
+                })
+
+            });
         }).catch(error => console.log(error));
 
     }
@@ -173,7 +182,17 @@ class App extends React.Component{
                         </Button>
 
                     </Jumbotron>
-
+                    <Jumbotron className={second_step_classes}>
+                        <h3>This are the statistics</h3>
+                        <ul>
+                        {
+                            this.state.data?
+                            this.state.data.map((e,i)=>{
+                                return <li key={i}><b>{e[0]}</b>:<b>{e[1]}</b></li>
+                            }):<></>
+                        }
+                        </ul>
+                    </Jumbotron>
                 </Container>
 
             </div>

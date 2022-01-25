@@ -96,6 +96,23 @@ def grade_adjustment_route():
     return jsonify(result)
 
 
+@app.route("/getFeatueresLastStudent")
+def getFeatueresLastStudent():
+    df=pandas.read_csv("../data/features.csv")
+    last=df.iloc[-1]
+    toSend=last.to_dict()
+    del toSend["sources_size"]
+    del toSend["Unnamed: 22"]
+    del toSend["label"]
+    elements=[]
+    for i in toSend:
+        elements.append([i,int(toSend[i])])
+    return {"features":elements
+    }
+
+
+
+
 # Model retraining route
 @app.route("/retrain_model", methods=["GET"])
 def model_retraining_route():
