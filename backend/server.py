@@ -34,45 +34,67 @@ def default_route():
     return "Alemia API\n"
 
 
-# Prediction route
-@app.route("/predict", methods=["POST"])
-def predict_route():
 
+@app.route("/predict", methods=["POST"])
+def predictProjects():
     global last_student_scanned, preprocessor, predictor
 
     # Get arguments
     uploaded_file = request.files["file"]
 
     # Generate a filename and save the file locally
-    unique_filename = uploaded_file.filename + str(time.time())
-    unique_filename = MD5.new(unique_filename.encode("utf-8")).hexdigest()
-    last_student_scanned = unique_filename
-    full_path = os.path.join(DOWNLOAD_DIRECTORY, unique_filename + ".zip")
-    uploaded_file.save(full_path)
+    unique_d = uploaded_file.filename + str(time.time())
+    unique_d= MD5.new(unique_d.encode("utf-8")).hexdigest()
+    
+    multiplyDirectory = DOWNLOAD_DIRECTORY + '/' + unique_d
+    path = os.path.join(multiplyDirectory)
+    os.mkdir(path)
 
-    # Extract the uploaded archive
-    extraction_full_path = os.path.join(EXTRACTION_DIRECTORY, unique_filename)
-    os.makedirs(extraction_full_path)
-    with zipfile.ZipFile(full_path, "r") as zip_file:
-        zip_file.extractall(extraction_full_path)
+    zipElem=zipfile.ZipFile(uploaded_file)
+    projectList=zipElem.namelist()
 
-    # Get features
-    features = feature_extraction.retrain_data_one(extraction_full_path + "/")
-    features = preprocessor.transform_entry(features)
 
-    # Predict the grade
-    grade = predictor.predict([features])[0]
-    grade = round(grade, 2)
+    zipiping=zipElem.infolist()
+    projectListArchives=[]
+    for j in range(len(zipiping)):
+        unique_file=projectList[j] + str(time.time())
+        unique_file=MD5.new(unique_file.encode("utf-8")).hexdigest()
+        zipiping[j].filename= unique_file+'.zip'
+        projectListArchives.append(unique_file)
+        zipElem.extract(zipiping[j],multiplyDirectory)
 
-    # Dump the grade into the specific CSV file
-    grades_df = pandas.read_csv(GRADES_CSV_FILENAME)
-    grades_df.loc[len(grades_df.index)] = [last_student_scanned, grade]
-    grades_df = grades_df[["label", "grade"]]
-    grades_df.to_csv(GRADES_CSV_FILENAME, index=False)
+    grades=[]
+    print(projectList)
+    print("Ce")
+    print(projectListArchives)
+    for i in range(len(projectList)):
+        full_path = os.path.join(multiplyDirectory, projectListArchives[i] + '.zip')
+        last_student_scanned = projectListArchives[i]
+    
+        # Extract the uploaded archive
+        extraction_full_path = os.path.join(EXTRACTION_DIRECTORY, projectListArchives[i])
+        os.makedirs(extraction_full_path)
+        with zipfile.ZipFile(full_path, "r") as zip_file:
+            zip_file.extractall(extraction_full_path)
 
-    # Return a result
-    result = {"predicted_grade": grade}
-    return jsonify(result)
+        # Get features
+        features = feature_extraction.retrain_data_one(extraction_full_path + "/")
+        features = preprocessor.transform_entry(features)
+
+        # Predict the grade
+        grade = predictor.predict([features])[0]
+        grade = round(grade, 2)
+
+        # Dump the grade into the specific CSV file
+        grades_df = pandas.read_csv(GRADES_CSV_FILENAME)
+        grades_df.loc[len(grades_df.index)] = [last_student_scanned, grade]
+        grades_df = grades_df[["label", "grade"]]
+        grades_df.to_csv(GRADES_CSV_FILENAME, index=False)
+
+        grades.append(grade)
+
+
+    return {"grades":grades}
 
 
 # Grade adjusting route

@@ -16,7 +16,7 @@ class App extends React.Component{
     default_state = {
         current_step: 1,
         selected_filename: "Archive",
-        predicted_grade: "NaN",
+        predicted_grade: [],
         adjusted_grade: ""
     }
 
@@ -48,10 +48,11 @@ class App extends React.Component{
                 "Content-Type": "multipart/form-data"
             }
         }).then(response => {
+            console.log(response.data)
             this.setState({
                 current_step: 2,
                 selected_filename: event.target.files[0].name,
-                predicted_grade: response.data.predicted_grade
+                predicted_grade: response.data.grades
             })
         }).catch(error => console.log(error));
 
@@ -132,8 +133,11 @@ class App extends React.Component{
 
                         <h3>Second Step</h3>
                         <p>Review the predicted grade. If you consider it is not right, create a change request to improve the machine learning models trained in the future.</p>
-
-                        <p className="grade">The predicted grade is <b>{this.state.predicted_grade}</b>.</p>
+                        {
+                            this.state.predicted_grade?
+                            this.state.predicted_grade.map((e,i)=>{
+                               return  <p key={i} className="grade">The predicted grade for the <b>{i+1}</b>-th is <b>{e}</b>.</p>}):<></>
+                        }
                         <Form>
                             <InputGroup className="mb-3">
                                 <Form.Control
