@@ -9,7 +9,7 @@ import {
 import axios from "axios"
 import "./stylesheets/App.css"
 
-const API_BASE_ADDRESS = "http://127.0.0.1:3001"
+const API_BASE_ADDRESS = "http://20.126.32.164:3001"
 
 class App extends React.Component{
 
@@ -17,7 +17,7 @@ class App extends React.Component{
         current_step: 1,
         selected_filename: "Archive",
         predicted_grade: "NaN",
-        adjusted_grade: ""
+        adjusted_grade: "",
     }
 
     constructor(props){
@@ -33,6 +33,7 @@ class App extends React.Component{
         this.sendChangeRequest = this.sendChangeRequest.bind(this)
         this.retrainModel = this.retrainModel.bind(this)
         this.restartGradingProcess = this.restartGradingProcess.bind(this)
+        
 
     }
 
@@ -173,7 +174,6 @@ class App extends React.Component{
                         </Button>
 
                     </Jumbotron>
-
                 </Container>
 
             </div>
